@@ -15,6 +15,8 @@ Full-stack ecommerce app for sealed Pokémon products and Pokémon single cards.
 
 The repository includes a `render.yaml` Blueprint for the Express API.
 
+It also includes a standard root `Dockerfile` for Render services created with the Docker runtime.
+
 1. In Render, select **New > Blueprint** and connect this repository.
 2. Select the `main` branch and confirm the `render.yaml` Blueprint.
 3. Enter every environment variable that Render prompts for.
