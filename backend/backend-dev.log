@@ -1,0 +1,5 @@
+
+> pokemon-store-backend@1.0.0 start
+> node src/server.js
+
+API server listening on http://localhost:4000
