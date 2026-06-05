@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Link, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { useAuth } from './context/AuthContext.jsx';
 import { useCart } from './context/CartContext.jsx';
@@ -52,10 +53,29 @@ function Shell() {
   const { user, isAdmin, logout } = useAuth();
   const { itemCount } = useCart();
   const location = useLocation();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const searchParams = new URLSearchParams(location.search);
   const productType = searchParams.get('type');
   const isProductsPath = location.pathname === '/products';
   const navClass = (active) => active ? 'is-active' : undefined;
+
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location.pathname, location.search]);
+
+  useEffect(() => {
+    function closeOnEscape(event) {
+      if (event.key === 'Escape') setMobileMenuOpen(false);
+    }
+
+    document.addEventListener('keydown', closeOnEscape);
+    return () => document.removeEventListener('keydown', closeOnEscape);
+  }, []);
+
+  async function handleLogout() {
+    setMobileMenuOpen(false);
+    await logout();
+  }
 
   return (
     <>
@@ -64,7 +84,23 @@ function Shell() {
           <Link className="brand" to="/" aria-label="Cannon Cards TCG home">
             <img src={logoUrl} alt="Cannon Cards TCG" />
           </Link>
-          <div className="site-nav-shell">
+          <button
+            className={`mobile-menu-toggle ${mobileMenuOpen ? 'is-open' : ''}`}
+            type="button"
+            aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+            aria-expanded={mobileMenuOpen}
+            aria-controls="site-navigation"
+            onClick={() => setMobileMenuOpen((open) => !open)}
+          >
+            <span />
+            <span />
+            <span />
+            {itemCount > 0 && <b>{itemCount}</b>}
+          </button>
+          <div
+            className={`site-nav-shell ${mobileMenuOpen ? 'is-open' : ''}`}
+            id="site-navigation"
+          >
             <nav className="site-nav site-nav--shop" aria-label="Shop">
               <Link className={navClass(isProductsPath && !productType)} to="/products">All products</Link>
               <Link className={navClass(isProductsPath && productType === 'sealed_product')} to="/products?type=sealed_product">Sealed</Link>
@@ -78,13 +114,21 @@ function Shell() {
                 Basket <span>{itemCount}</span>
               </Link>
               {user ? (
-                <button className="link-button" onClick={logout}>Sign out</button>
+                <button className="link-button" onClick={handleLogout}>Sign out</button>
               ) : (
                 <Link className={navClass(location.pathname === '/login')} to="/login">Sign in</Link>
               )}
             </nav>
           </div>
         </div>
+        {mobileMenuOpen && (
+          <button
+            className="mobile-menu-backdrop"
+            type="button"
+            aria-label="Close navigation menu"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+        )}
       </header>
 
       <Routes>
