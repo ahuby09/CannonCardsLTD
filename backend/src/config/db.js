@@ -38,3 +38,11 @@ export async function withTransaction(work) {
     connection.release();
   }
 }
+
+export async function closePool() {
+  if (!pool) return;
+
+  const activePool = pool;
+  pool = undefined;
+  await activePool.end();
+}
