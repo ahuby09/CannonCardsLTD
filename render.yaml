@@ -14,13 +14,13 @@ services:
       - key: NODE_ENV
         value: production
       - key: API_BASE_URL
-        sync: false
+        value: https://cannoncardsltd.onrender.com
       - key: CLIENT_ORIGIN
-        sync: false
+        value: https://soft-marzipan-926b7d.netlify.app
       - key: CLIENT_SUCCESS_URL
-        sync: false
+        value: https://soft-marzipan-926b7d.netlify.app/order-confirmation?session_id={CHECKOUT_SESSION_ID}
       - key: CLIENT_CANCEL_URL
-        sync: false
+        value: https://soft-marzipan-926b7d.netlify.app/checkout
 
       - key: MYSQL_HOST
         sync: false

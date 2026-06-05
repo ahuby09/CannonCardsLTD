@@ -8,6 +8,28 @@ const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
 
+const isProduction = process.env.NODE_ENV === 'production';
+const productionClientOrigin = 'https://soft-marzipan-926b7d.netlify.app';
+const productionApiBaseUrl = 'https://cannoncardsltd.onrender.com';
+
+function productionUrl(configuredValue, productionFallback, developmentFallback) {
+  if (!isProduction) {
+    return configuredValue || developmentFallback;
+  }
+
+  return !configuredValue || configuredValue.includes('localhost')
+    ? productionFallback
+    : configuredValue;
+}
+
+function clientOrigins() {
+  if (!isProduction) {
+    return process.env.CLIENT_ORIGIN || 'http://localhost:5173';
+  }
+
+  return [...new Set([process.env.CLIENT_ORIGIN, productionClientOrigin].filter(Boolean))].join(',');
+}
+
 function getMysqlSslConfig() {
   const sslEnabled = ['1', 'true', 'required'].includes(
     String(process.env.MYSQL_SSL || '').toLowerCase()
@@ -30,8 +52,8 @@ function getMysqlSslConfig() {
 export const env = {
   nodeEnv: process.env.NODE_ENV || 'development',
   port: Number(process.env.PORT || 4000),
-  clientOrigin: process.env.CLIENT_ORIGIN || 'http://localhost:5173',
-  apiBaseUrl: process.env.API_BASE_URL || 'http://localhost:4000',
+  clientOrigin: clientOrigins(),
+  apiBaseUrl: productionUrl(process.env.API_BASE_URL, productionApiBaseUrl, 'http://localhost:4000'),
 
   mysql: {
     host: process.env.MYSQL_HOST || 'localhost',
@@ -48,8 +70,16 @@ export const env = {
 
   stripeSecretKey: process.env.STRIPE_SECRET_KEY,
   stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
-  clientSuccessUrl: process.env.CLIENT_SUCCESS_URL || 'http://localhost:5173/order-confirmation?session_id={CHECKOUT_SESSION_ID}',
-  clientCancelUrl: process.env.CLIENT_CANCEL_URL || 'http://localhost:5173/checkout',
+  clientSuccessUrl: productionUrl(
+    process.env.CLIENT_SUCCESS_URL,
+    `${productionClientOrigin}/order-confirmation?session_id={CHECKOUT_SESSION_ID}`,
+    'http://localhost:5173/order-confirmation?session_id={CHECKOUT_SESSION_ID}'
+  ),
+  clientCancelUrl: productionUrl(
+    process.env.CLIENT_CANCEL_URL,
+    `${productionClientOrigin}/checkout`,
+    'http://localhost:5173/checkout'
+  ),
   storeCurrency: (process.env.STORE_CURRENCY || 'gbp').toLowerCase(),
 
   shippoApiToken: process.env.SHIPPO_API_TOKEN,
