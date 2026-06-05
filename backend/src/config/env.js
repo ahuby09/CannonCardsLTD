@@ -8,6 +8,25 @@ const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
 
+function getMysqlSslConfig() {
+  const sslEnabled = ['1', 'true', 'required'].includes(
+    String(process.env.MYSQL_SSL || '').toLowerCase()
+  );
+
+  if (!sslEnabled) {
+    return undefined;
+  }
+
+  const ca = process.env.MYSQL_SSL_CA_BASE64
+    ? Buffer.from(process.env.MYSQL_SSL_CA_BASE64, 'base64').toString('utf8')
+    : process.env.MYSQL_SSL_CA;
+
+  return {
+    rejectUnauthorized: process.env.MYSQL_SSL_REJECT_UNAUTHORIZED !== 'false',
+    ...(ca ? { ca } : {})
+  };
+}
+
 export const env = {
   nodeEnv: process.env.NODE_ENV || 'development',
   port: Number(process.env.PORT || 4000),
@@ -19,7 +38,8 @@ export const env = {
     port: Number(process.env.MYSQL_PORT || 3306),
     user: process.env.MYSQL_USER || 'root',
     password: process.env.MYSQL_PASSWORD || '',
-    database: process.env.MYSQL_DATABASE || 'pokemon_store'
+    database: process.env.MYSQL_DATABASE || 'pokemon_store',
+    ssl: getMysqlSslConfig()
   },
 
   jwtSecret: process.env.JWT_SECRET,
