@@ -9,7 +9,12 @@ dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
 
 const isProduction = process.env.NODE_ENV === 'production';
-const productionClientOrigin = 'https://soft-marzipan-926b7d.netlify.app';
+const productionPrimaryClientOrigin = 'https://cannoncardstcgltd.co.uk';
+const productionClientOrigins = [
+  productionPrimaryClientOrigin,
+  'https://www.cannoncardstcgltd.co.uk',
+  'https://soft-marzipan-926b7d.netlify.app'
+];
 const productionApiBaseUrl = 'https://cannoncardsltd.onrender.com';
 
 function productionUrl(configuredValue, productionFallback, developmentFallback) {
@@ -17,9 +22,18 @@ function productionUrl(configuredValue, productionFallback, developmentFallback)
     return configuredValue || developmentFallback;
   }
 
-  return !configuredValue || configuredValue.includes('localhost')
+  return !configuredValue ||
+    configuredValue.includes('localhost') ||
+    configuredValue.includes('soft-marzipan-926b7d.netlify.app')
     ? productionFallback
     : configuredValue;
+}
+
+function splitOrigins(value) {
+  return String(value || '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
 }
 
 function clientOrigins() {
@@ -27,7 +41,7 @@ function clientOrigins() {
     return process.env.CLIENT_ORIGIN || 'http://localhost:5173';
   }
 
-  return [...new Set([process.env.CLIENT_ORIGIN, productionClientOrigin].filter(Boolean))].join(',');
+  return [...new Set([...splitOrigins(process.env.CLIENT_ORIGIN), ...productionClientOrigins])].join(',');
 }
 
 function getMysqlSslConfig() {
@@ -72,12 +86,12 @@ export const env = {
   stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
   clientSuccessUrl: productionUrl(
     process.env.CLIENT_SUCCESS_URL,
-    `${productionClientOrigin}/order-confirmation?session_id={CHECKOUT_SESSION_ID}`,
+    `${productionPrimaryClientOrigin}/order-confirmation?session_id={CHECKOUT_SESSION_ID}`,
     'http://localhost:5173/order-confirmation?session_id={CHECKOUT_SESSION_ID}'
   ),
   clientCancelUrl: productionUrl(
     process.env.CLIENT_CANCEL_URL,
-    `${productionClientOrigin}/checkout`,
+    `${productionPrimaryClientOrigin}/checkout`,
     'http://localhost:5173/checkout'
   ),
   storeCurrency: (process.env.STORE_CURRENCY || 'gbp').toLowerCase(),

@@ -16,11 +16,11 @@ services:
       - key: API_BASE_URL
         value: https://cannoncardsltd.onrender.com
       - key: CLIENT_ORIGIN
-        value: https://soft-marzipan-926b7d.netlify.app
+        value: "https://cannoncardstcgltd.co.uk,https://www.cannoncardstcgltd.co.uk,https://soft-marzipan-926b7d.netlify.app"
       - key: CLIENT_SUCCESS_URL
-        value: https://soft-marzipan-926b7d.netlify.app/order-confirmation?session_id={CHECKOUT_SESSION_ID}
+        value: https://cannoncardstcgltd.co.uk/order-confirmation?session_id={CHECKOUT_SESSION_ID}
       - key: CLIENT_CANCEL_URL
-        value: https://soft-marzipan-926b7d.netlify.app/checkout
+        value: https://cannoncardstcgltd.co.uk/checkout
 
       - key: MYSQL_HOST
         sync: false
